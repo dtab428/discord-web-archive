@@ -1,15 +1,21 @@
 // pages/api/guilds.ts
+import { Session } from "next-auth";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 
 interface Guild {
      owner: boolean;
      name: string;
-     // ... other properties of a guild
+}
+
+interface CustomSession extends Session {
+     accessToken: string;
 }
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-     const session = await getSession({ req });
+     const session: CustomSession | null = (await getSession({
+          req,
+     })) as CustomSession | null;
 
      if (!session) {
           res.status(401).send({
@@ -22,7 +28,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           "https://discord.com/api/v10/users/@me/guilds",
           {
                headers: {
-                    Authorization: `Bearer ${(session as any).accessToken}`,
+                    Authorization: `Bearer ${session.accessToken}`,
                },
           }
      );
