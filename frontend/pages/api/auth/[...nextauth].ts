@@ -8,5 +8,28 @@ export default NextAuth({
                clientSecret: process.env.DISCORD_CLIENT_SECRET,
           }),
      ],
-     // ...rest of your NextAuth configuration
+     session: { strategy: "jwt" },
+     callbacks: {
+          async jwt({ token, account }) {
+               console.log("i get here");
+               console.log("account", account);
+               console.log("token", token);
+               // if (account) {
+               //   console.log(token.accessToken);
+               //   token.accessToken = account.access_token;
+               // }
+               return token;
+          },
+          async session({ session, token, user }) {
+               console.log(token);
+               return {
+                    ...session,
+                    user: {
+                         ...session.user,
+                         id: user.id,
+                         name: user.name,
+                    },
+               };
+          },
+     },
 });
