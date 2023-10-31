@@ -17,6 +17,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           req,
      })) as CustomSession | null;
 
+     console.log(session);
+
      if (!session) {
           res.status(401).send({
                error: "You must be signed in to view the protected content on this page.",
@@ -24,8 +26,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           return;
      }
 
+     console.log("Access Token:", session.accessToken); // Debugging line
+
      const guildsResponse = await fetch(
-          "https://discord.com/api/v10/users/@me/guilds",
+          "https://discord.com/api/users/@me/guilds",
           {
                headers: {
                     Authorization: `Bearer ${session.accessToken}`,
@@ -34,14 +38,16 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
      );
 
      if (!guildsResponse.ok) {
-          console.error(await guildsResponse.text());
+          const errorText = await guildsResponse.text();
+          console.error(errorText);
           res.status(guildsResponse.status).send({
-               error: "Failed to fetch guilds",
+               error: errorText || "Failed to fetch guilds",
           });
           return;
      }
 
      const guilds: Guild[] = await guildsResponse.json();
+     // console.log("Received guilds:", guilds);
      const ownedGuilds = guilds.filter((guild) => guild.owner);
 
      res.send(ownedGuilds);

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Card } from "@nextui-org/react";
 import { useSession } from "next-auth/react";
+import Container from "../components/container";
 
 export default function GuildsPage() {
      const { data: session, status } = useSession();
@@ -9,8 +10,8 @@ export default function GuildsPage() {
      const [error, setError] = useState(null);
 
      useEffect(() => {
+          console.log("use effect");
           if (status === "authenticated") {
-               // Fetch guilds from your API
                fetch("/api/guilds")
                     .then((response) => {
                          if (!response.ok) {
@@ -18,17 +19,20 @@ export default function GuildsPage() {
                          }
                          return response.json();
                     })
-                    .then((data) => setGuilds(data))
+                    .then((data) => {
+                         console.log("Guilds on frontend:", data);
+                         setGuilds(data);
+                    })
                     .catch((error) => setError(error));
           }
      }, [status]);
 
      if (error) {
-          return <div>Error: {error}</div>;
+          return <Container>Error: {error}</Container>;
      }
 
      return (
-          <div>
+          <Container>
                <h3>My Servers</h3>
                <div>
                     {guilds.map((guild, index) => (
@@ -37,6 +41,6 @@ export default function GuildsPage() {
                          </Card>
                     ))}
                </div>
-          </div>
+          </Container>
      );
 }
