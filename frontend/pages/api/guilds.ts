@@ -49,7 +49,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
      const guilds: Guild[] = await guildsResponse.json();
      // console.log("Received guilds:", guilds);
      const ownedGuilds = guilds.filter((guild) => guild.owner);
-
+     console.log(ownedGuilds);
      res.send(ownedGuilds);
 };
 
