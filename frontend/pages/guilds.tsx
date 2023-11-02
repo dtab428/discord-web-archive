@@ -34,7 +34,7 @@ export default function GuildsPage() {
                <div className="flex gap-3">
                     {guilds.map((guild, index) => (
                          <Link href={`/server/${guild.id}/forums`} key={index}>
-                              <Card hoverable as="a">
+                              <Card as="a" className="p-5">
                                    {guild.icon ? (
                                         <Avatar
                                              src={`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`}

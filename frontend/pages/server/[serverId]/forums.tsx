@@ -1,7 +1,6 @@
-// pages/server/[serverId]/forums.tsx
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { Card, Spacer, Badge } from "@nextui-org/react";
+import { Card, Spacer, Badge, Spinner } from "@nextui-org/react";
 import Container from "../../../components/container";
 
 export default function ServerForums() {
@@ -9,29 +8,83 @@ export default function ServerForums() {
      const { serverId } = router.query;
 
      const [forums, setForums] = useState([]);
+     const [loading, setLoading] = useState(true);
 
      useEffect(() => {
           if (serverId) {
+               setLoading(true);
                fetch(`/api/forums/${serverId}`)
-                    .then((res) => res.json())
-                    .then((data) => {
+                    .then((res) =>
+                         res.ok ? res.json() : Promise.reject(res.statusText)
+                    )
+                    .then(async (data) => {
                          console.log(data);
-                         // Transform data to match the expected structure
+                         const lastMessagePromises = data.channels.map(
+                              (channel) =>
+                                   channel.last_message_id
+                                        ? fetch(
+                                               `/api/messages/${channel.last_message_id}`
+                                          ).then((res) => res.json())
+                                        : Promise.resolve(null)
+                         );
+
+                         const lastMessages = await Promise.all(
+                              lastMessagePromises
+                         );
+                         console.log("Last Messages:", lastMessages);
+
+                         const userPromises = lastMessages.map((message) =>
+                              message && message.author
+                                   ? fetch(
+                                          `/api/users/${message.author.id}`
+                                     ).then((res) => res.json())
+                                   : Promise.resolve(null)
+                         );
+
+                         const users = await Promise.all(userPromises);
+                         console.log("Users:", users);
+
                          const transformedForums = data.channels.map(
-                              (channel) => {
+                              (channel, index) => {
+                                   const message = lastMessages[index]
+                                        ? lastMessages[index][0]
+                                        : null; // Get the first message from the array
                                    return {
                                         title: channel.name,
-                                        description:
-                                             channel.topic || "No description", // using topic as description
+                                        description: message
+                                             ? message.content
+                                             : "No content available",
                                         id: channel.id,
                                         threads: channel.last_message_id
                                              ? [
                                                     {
                                                          title: "Last Message",
                                                          id: channel.last_message_id,
-                                                         lastReplyDate:
-                                                              new Date(), // You might want to fetch the actual date from the API
-                                                         replyCount: 1, // This is a placeholder, you might want to fetch the actual count from the API
+                                                         lastReplyDate: message
+                                                              ? new Date(
+                                                                     Date.parse(
+                                                                          message.timestamp
+                                                                     )
+                                                                )
+                                                              : new Date(),
+                                                         replyCount: 1,
+                                                         username:
+                                                              message &&
+                                                              message.author
+                                                                   ? message
+                                                                          .author
+                                                                          .username
+                                                                   : "Unknown",
+                                                         avatar:
+                                                              message &&
+                                                              message.author &&
+                                                              message.author
+                                                                   .avatar
+                                                                   ? `https://cdn.discordapp.com/avatars/${message.author.id}/${message.author.avatar}.png`
+                                                                   : "Default Avatar URL",
+                                                         content: message
+                                                              ? message.content
+                                                              : "No content",
                                                     },
                                                ]
                                              : [],
@@ -40,10 +93,20 @@ export default function ServerForums() {
                          );
 
                          setForums(transformedForums);
+                         console.log("Transformed forums:", transformedForums);
                     })
-                    .catch(console.error);
+                    .catch(console.error)
+                    .finally(() => setLoading(false));
           }
      }, [serverId]);
+
+     if (loading) {
+          return (
+               <Container>
+                    <Spinner />
+               </Container>
+          );
+     }
 
      return (
           <Container>
@@ -57,8 +120,20 @@ export default function ServerForums() {
                               {forum.threads &&
                                    forum.threads.length > 0 &&
                                    forum.threads.map((thread) => (
-                                        <Card key={thread.id} hoverable>
-                                             <h5>{thread.title}</h5>
+                                        <Card key={thread.id}>
+                                             <div className="flex items-center">
+                                                  <img
+                                                       src={thread.avatar}
+                                                       alt={`${thread.username}'s avatar`}
+                                                       width="40"
+                                                       height="40"
+                                                       className="mr-2 rounded-full"
+                                                  />
+                                                  <h5>
+                                                       {thread.title} by{" "}
+                                                       {thread.username}
+                                                  </h5>
+                                             </div>
                                              <div className="flex justify-between">
                                                   <small>
                                                        Last reply:{" "}
