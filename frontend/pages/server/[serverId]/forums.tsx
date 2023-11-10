@@ -1,7 +1,14 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { Card, Spacer, Badge, Spinner, Avatar } from "@nextui-org/react";
-import Container from "../../../components/container";
+import {
+     Card,
+     CardHeader,
+     CardBody,
+     Spacer,
+     Spinner,
+     Avatar,
+} from "@nextui-org/react";
+import Container from "../../../components/container"; // Using your custom Container
 import { format, parseISO } from "date-fns";
 
 export default function ServerForums() {
@@ -13,8 +20,7 @@ export default function ServerForums() {
 
      // Function to format the date
      const formatDate = (dateString) => {
-          // Parse the date string into a Date object and format it
-          return format(parseISO(dateString), "MMMM dd, yyyy @ HH:mm a");
+          return format(parseISO(dateString), "MMMM dd, yyyy 'at' HH:mm");
      };
 
      useEffect(() => {
@@ -25,7 +31,6 @@ export default function ServerForums() {
                          res.ok ? res.json() : Promise.reject(res.statusText)
                     )
                     .then((data) => {
-                         console.log("Forum data:", data);
                          setData(data);
                     })
                     .catch((error) =>
@@ -47,40 +52,27 @@ export default function ServerForums() {
           <Container>
                {data.channels.length > 0 ? (
                     data.channels.map((channel, index) => (
-                         <div key={channel.id}>
+                         <div key={channel.id} style={{ marginBottom: "2rem" }}>
                               <h3>{channel.name}</h3>
                               {data.threads[index].length > 0 ? (
                                    data.threads[index].map((thread) => (
                                         <Card
                                              key={thread.id}
                                              bordered
-                                             shadow={false}
-                                             hoverable
-                                             css={{ mw: "400px" }}
+                                             css={{ marginBottom: "1.5rem" }}
                                         >
-                                             <div
-                                                  style={{
-                                                       display: "flex",
-                                                       alignItems: "center",
-                                                  }}
-                                             >
-                                                  {/* Assuming you have the avatar URL in thread.owner_avatar */}
+                                             <CardHeader>
                                                   <Avatar
-                                                       src={thread.owner_avatar}
+                                                       src={
+                                                            thread.owner_avatar ||
+                                                            "/fallback-avatar.png"
+                                                       }
+                                                       color="primary"
+                                                       bordered
                                                   />
-                                                  <div
-                                                       style={{
-                                                            marginLeft: "8px",
-                                                       }}
-                                                  >
-                                                       <h4 css={{ m: 0 }}>
-                                                            {thread.name}
-                                                       </h4>
-                                                       <p
-                                                            css={{
-                                                                 color: "$accents7",
-                                                            }}
-                                                       >
+                                                  <div>
+                                                       <h4>{thread.name}</h4>
+                                                       <p>
                                                             {formatDate(
                                                                  thread
                                                                       .thread_metadata
@@ -88,21 +80,67 @@ export default function ServerForums() {
                                                             )}
                                                        </p>
                                                   </div>
-                                             </div>
-                                             {/* Render the last message preview */}
-                                             <p css={{ color: "$accents8" }}>
-                                                  Last message:{" "}
-                                                  {thread.messages[0]
-                                                       ?.content ||
-                                                       "No messages"}
-                                             </p>
-                                             {/* You can expand here to show more messages */}
+                                             </CardHeader>
+                                             {thread.messages.map((message) => (
+                                                  <CardBody key={message.id}>
+                                                       <div
+                                                            style={{
+                                                                 display: "flex",
+                                                                 alignItems:
+                                                                      "center",
+                                                                 marginBottom:
+                                                                      "1rem",
+                                                            }}
+                                                       >
+                                                            <Avatar
+                                                                 src={
+                                                                      message
+                                                                           .author
+                                                                           .avatar ||
+                                                                      "/fallback-avatar.png"
+                                                                 }
+                                                                 color="primary"
+                                                                 size="sm"
+                                                                 bordered
+                                                                 css={{
+                                                                      marginRight:
+                                                                           "1rem",
+                                                                 }}
+                                                            />
+                                                            <div>
+                                                                 <p>
+                                                                      <strong>
+                                                                           {
+                                                                                message
+                                                                                     .author
+                                                                                     .username
+                                                                           }
+                                                                      </strong>
+                                                                      :{" "}
+                                                                      {
+                                                                           message.content
+                                                                      }
+                                                                 </p>
+                                                                 <p
+                                                                      style={{
+                                                                           fontSize:
+                                                                                "0.75rem",
+                                                                           color: "#888",
+                                                                      }}
+                                                                 >
+                                                                      {formatDate(
+                                                                           message.timestamp
+                                                                      )}
+                                                                 </p>
+                                                            </div>
+                                                       </div>
+                                                  </CardBody>
+                                             ))}
                                         </Card>
                                    ))
                               ) : (
                                    <p>No active threads in this forum.</p>
                               )}
-                              <Spacer y={2} />
                          </div>
                     ))
                ) : (
