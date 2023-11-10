@@ -8,6 +8,15 @@ module.exports = {
           "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
      ],
      theme: {
+          // fontFamily: {
+          //      sans: [
+          //           '"Inter", sans-serif',
+          //           {
+          //                fontFeatureSettings: '"cv11", "ss01"',
+          //                fontVariationSettings: '"opsz" 32',
+          //           },
+          //      ],
+          // },
           extend: {
                colors: {
                     "accent-1": "#FAFAFA",
