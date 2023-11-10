@@ -1,7 +1,8 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { Card, Spacer, Text, Badge, Spinner } from "@nextui-org/react";
+import { Card, Spacer, Badge, Spinner, Avatar } from "@nextui-org/react";
 import Container from "../../../components/container";
+import { format, parseISO } from "date-fns";
 
 export default function ServerForums() {
      const router = useRouter();
@@ -9,6 +10,12 @@ export default function ServerForums() {
 
      const [data, setData] = useState({ channels: [], threads: [] });
      const [loading, setLoading] = useState(true);
+
+     // Function to format the date
+     const formatDate = (dateString) => {
+          // Parse the date string into a Date object and format it
+          return format(parseISO(dateString), "MMMM dd, yyyy @ HH:mm a");
+     };
 
      useEffect(() => {
           if (serverId) {
@@ -51,26 +58,55 @@ export default function ServerForums() {
                                              hoverable
                                              css={{ mw: "400px" }}
                                         >
-                                             <h4 css={{ m: 0 }}>
-                                                  {thread.name}
-                                             </h4>
-                                             <p css={{ color: "$accents7" }}>
-                                                  {
-                                                       thread.thread_metadata
-                                                            .create_timestamp
-                                                  }
+                                             <div
+                                                  style={{
+                                                       display: "flex",
+                                                       alignItems: "center",
+                                                  }}
+                                             >
+                                                  {/* Assuming you have the avatar URL in thread.owner_avatar */}
+                                                  <Avatar
+                                                       src={thread.owner_avatar}
+                                                  />
+                                                  <div
+                                                       style={{
+                                                            marginLeft: "8px",
+                                                       }}
+                                                  >
+                                                       <h4 css={{ m: 0 }}>
+                                                            {thread.name}
+                                                       </h4>
+                                                       <p
+                                                            css={{
+                                                                 color: "$accents7",
+                                                            }}
+                                                       >
+                                                            {formatDate(
+                                                                 thread
+                                                                      .thread_metadata
+                                                                      .create_timestamp
+                                                            )}
+                                                       </p>
+                                                  </div>
+                                             </div>
+                                             {/* Render the last message preview */}
+                                             <p css={{ color: "$accents8" }}>
+                                                  Last message:{" "}
+                                                  {thread.messages[0]
+                                                       ?.content ||
+                                                       "No messages"}
                                              </p>
-                                             {/* You can add more thread details here */}
+                                             {/* You can expand here to show more messages */}
                                         </Card>
                                    ))
                               ) : (
-                                   <Text>No active threads in this forum.</Text>
+                                   <p>No active threads in this forum.</p>
                               )}
                               <Spacer y={2} />
                          </div>
                     ))
                ) : (
-                    <Text>No forums available for this server.</Text>
+                    <p>No forums available for this server.</p>
                )}
           </Container>
      );

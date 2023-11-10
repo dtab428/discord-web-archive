@@ -17,11 +17,28 @@ interface CustomSession extends Session {
      accessToken?: string;
 }
 
-async function fetchThreads(
-     guildId: string,
-     channelId: string,
-     botToken: string
-) {
+async function fetchMessagesForThread(threadId, botToken) {
+     const messagesResponse = await fetch(
+          `https://discord.com/api/v10/channels/${threadId}/messages`,
+          {
+               headers: {
+                    Authorization: `Bot ${botToken}`,
+               },
+          }
+     );
+
+     if (!messagesResponse.ok) {
+          console.error(
+               `Failed to fetch messages for thread ${threadId}: ${messagesResponse.statusText}`
+          );
+          return [];
+     }
+
+     const messages = await messagesResponse.json();
+     return messages;
+}
+
+async function fetchThreads(guildId, channelId, botToken) {
      // Active threads in the guild
      const activeThreadsResponse = await fetch(
           `https://discord.com/api/v10/guilds/${guildId}/threads/active`,
@@ -86,7 +103,14 @@ async function fetchThreads(
           ...archivedPrivateThreads.threads,
      ];
 
-     return allThreads;
+     // Fetch messages for each thread
+     const threadsWithMessagesPromises = allThreads.map(async (thread) => {
+          const messages = await fetchMessagesForThread(thread.id, botToken);
+          return { ...thread, messages }; // Combine the thread info with the messages
+     });
+
+     const threadsWithMessages = await Promise.all(threadsWithMessagesPromises);
+     return threadsWithMessages;
 }
 
 export default async function handler(
@@ -125,26 +149,18 @@ export default async function handler(
           (channel) => channel.type === 15 // Replace with the correct type for Community Text Channels
      );
 
-     // Fetch threads for all community text channels
-     const threadsByChannelPromises = communityTextChannels.map((channel) =>
-          fetchThreads(
-               serverId as string,
-               channel.id,
-               process.env.DISCORD_BOT_TOKEN!
-          )
+     // Fetch threads for all community text channels and include messages
+     const threadsByChannelWithMessagesPromises = communityTextChannels.map(
+          (channel) =>
+               fetchThreads(serverId, channel.id, process.env.DISCORD_BOT_TOKEN)
      );
 
-     const threadsByChannel = await Promise.all(threadsByChannelPromises);
-
-     // Log the total number of threads fetched for each channel
-     threadsByChannel.forEach((threads, index) => {
-          console.log(
-               `Channel ID: ${communityTextChannels[index].id} fetched a total of ${threads.length} threads.`
-          );
-     });
+     const threadsByChannelWithMessages = await Promise.all(
+          threadsByChannelWithMessagesPromises
+     );
 
      res.status(200).json({
           channels: communityTextChannels,
-          threads: threadsByChannel,
+          threads: threadsByChannelWithMessages, // This now includes messages
      });
 }
