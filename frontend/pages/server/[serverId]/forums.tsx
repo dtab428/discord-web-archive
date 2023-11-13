@@ -11,7 +11,7 @@ import {
      Button,
 } from "@nextui-org/react";
 import Container from "../../../components/container";
-import { format, parseISO } from "date-fns";
+import { format, parseISO, formatDistanceToNow } from "date-fns";
 
 export default function ServerForums() {
      const router = useRouter();
@@ -223,9 +223,14 @@ export default function ServerForums() {
                                                        }
                                                   </h4>
                                                   <p style={{ margin: 0 }}>
-                                                       {formatDate(
-                                                            thread.messages[0]
-                                                                 .timestamp
+                                                       {formatDistanceToNow(
+                                                            new Date(
+                                                                 thread.messages[0].timestamp
+                                                            ),
+                                                            {
+                                                                 addSuffix:
+                                                                      true,
+                                                            }
                                                        )}
                                                   </p>
                                              </div>
@@ -296,15 +301,49 @@ export default function ServerForums() {
                                                                                           "0.75rem",
                                                                                      color: "#888",
                                                                                 }}
-                                                                           >
-                                                                                {formatDate(
+                                                                                title={formatDate(
                                                                                      message.timestamp
+                                                                                )}
+                                                                                data-date={
+                                                                                     message.timestamp
+                                                                                }
+                                                                           >
+                                                                                {formatDistanceToNow(
+                                                                                     new Date(
+                                                                                          message.timestamp
+                                                                                     ),
+                                                                                     {
+                                                                                          addSuffix:
+                                                                                               true,
+                                                                                     }
                                                                                 )}
                                                                            </p>
                                                                       </div>
                                                                  </div>
                                                             )
                                                        )}
+
+                                             <Button
+                                                  flat
+                                                  onClick={() =>
+                                                       toggleThread(thread.id)
+                                                  }
+                                                  css={{
+                                                       width: "100%",
+                                                       justifyContent: "center",
+                                                       padding: "10px",
+                                                       color:
+                                                            expandedThreadId ===
+                                                            thread.id
+                                                                 ? "red"
+                                                                 : "blue", // Change colors as needed
+                                                  }}
+                                             >
+                                                  {expandedThreadId ===
+                                                  thread.id
+                                                       ? "Collapse Thread"
+                                                       : "Expand Thread"}
+                                             </Button>
                                         </CardBody>
                                         <div
                                              style={{
