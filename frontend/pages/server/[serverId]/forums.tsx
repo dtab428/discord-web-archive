@@ -28,6 +28,7 @@ export default function ServerForums() {
      const [activeThreads, setActiveThreads] = useState([]);
      const [currentPage, setCurrentPage] = useState(1);
      const [postsPerPage, setPostsPerPage] = useState(2); // default posts per page
+     const [expandedThreadId, setExpandedThreadId] = useState(null); // Added for expandable threads
 
      // Function to format the date in 12-hour format with AM/PM
      const formatDate = (dateString) => {
@@ -123,57 +124,122 @@ export default function ServerForums() {
 
      const totalNumberOfPages = Math.ceil(activeThreads.length / postsPerPage);
 
+     const toggleThread = (threadId) => {
+          setExpandedThreadId(expandedThreadId === threadId ? null : threadId);
+     };
+
      return (
           <Container>
                <div style={{ display: "flex", gap: "20px" }}>
                     {/* Channels list on the left */}
-                    <div style={{ flex: 1, minWidth: "300px" }}>
+                    <div style={{ flex: "1", minWidth: "300px" }}>
                          <div style={{ position: "sticky", top: "20px" }}>
                               {data.channels.map((channel) => (
-                                   <Card key={channel.id}>
-                                        <CardHeader>
-                                             <p>{channel.name}</p>
-                                        </CardHeader>
-                                        <Button
-                                             flat
-                                             auto
-                                             onClick={() =>
-                                                  handleChannelClick(channel.id)
-                                             }
-                                        >
-                                             View Threads
-                                        </Button>
-                                   </Card>
+                                   <Button
+                                        key={channel.id}
+                                        flat
+                                        auto
+                                        color={
+                                             activeChannel?.id === channel.id
+                                                  ? "primary"
+                                                  : "default"
+                                        } // Active state color
+                                        onClick={() =>
+                                             handleChannelClick(channel.id)
+                                        }
+                                        css={{
+                                             marginBottom: "10px",
+                                             width: "100%",
+                                             justifyContent: "flex-start",
+                                             color:
+                                                  activeChannel?.id ===
+                                                  channel.id
+                                                       ? "white"
+                                                       : "inherit", // Text color for active state
+                                             backgroundColor:
+                                                  activeChannel?.id ===
+                                                  channel.id
+                                                       ? "#0070f3"
+                                                       : "transparent", // Background color for active state
+                                        }}
+                                   >
+                                        {channel.name}
+                                   </Button>
                               ))}
                          </div>
                     </div>
 
                     {/* Threads on the right */}
-                    <div style={{ flex: 2 }}>
-                         {activeChannel && (
-                              <>
-                                   <h3>Threads in {activeChannel.name}</h3>
-                                   {activeThreads
-                                        .slice(
-                                             (currentPage - 1) * postsPerPage,
-                                             currentPage * postsPerPage
-                                        )
-                                        .map((thread) => (
-                                             <Card key={thread.id}>
-                                                  <CardHeader>
-                                                       <p>{thread.name}</p>{" "}
-                                                       {/* Thread title */}
-                                                       <p>
-                                                            {formatDate(
-                                                                 thread
-                                                                      .thread_metadata
-                                                                      .create_timestamp
-                                                            )}
-                                                       </p>{" "}
-                                                       {/* Thread creation time */}
-                                                  </CardHeader>
-                                                  <CardBody>
-                                                       {thread.messages.map(
+                    <div style={{ flex: 3 }}>
+                         {activeThreads
+                              .slice(
+                                   (currentPage - 1) * postsPerPage,
+                                   currentPage * postsPerPage
+                              )
+                              .map((thread) => (
+                                   <Card
+                                        key={thread.id}
+                                        css={{
+                                             marginBottom: "$8",
+                                             overflow: "hidden",
+                                        }}
+                                   >
+                                        <CardHeader
+                                             css={{
+                                                  display: "flex",
+                                                  flexDirection: "column",
+                                                  alignItems: "flex-start",
+                                             }}
+                                        >
+                                             <Avatar
+                                                  src={getAvatarUrl(
+                                                       thread.messages[0].author
+                                                            .id,
+                                                       thread.messages[0].author
+                                                            .avatar,
+                                                       thread.messages[0].author
+                                                            .discriminator
+                                                  )}
+                                                  color="primary"
+                                                  size="md"
+                                                  css={{
+                                                       marginBottom: "1rem",
+                                                       borderRadius: "50%",
+                                                  }} // Ensures the avatar is circular
+                                             />
+                                             <div
+                                                  style={{
+                                                       display: "flex",
+                                                       justifyContent:
+                                                            "space-between",
+                                                       width: "100%",
+                                                  }}
+                                             >
+                                                  <h4 style={{ margin: 0 }}>
+                                                       {
+                                                            thread.messages[0]
+                                                                 .author
+                                                                 .username
+                                                       }
+                                                  </h4>
+                                                  <p style={{ margin: 0 }}>
+                                                       {formatDate(
+                                                            thread.messages[0]
+                                                                 .timestamp
+                                                       )}
+                                                  </p>
+                                             </div>
+                                        </CardHeader>
+                                        <CardBody
+                                             onClick={() =>
+                                                  toggleThread(thread.id)
+                                             }
+                                        >
+                                             <p>{thread.messages[0].content}</p>
+                                             {expandedThreadId === thread.id &&
+                                                  thread.messages
+                                                       .slice(1)
+                                                       .map(
                                                             (
                                                                  message,
                                                                  index
@@ -183,78 +249,97 @@ export default function ServerForums() {
                                                                            index
                                                                       }
                                                                       style={{
-                                                                           marginBottom:
+                                                                           display: "flex",
+                                                                           alignItems:
+                                                                                "center",
+                                                                           marginTop:
                                                                                 "1rem",
                                                                       }}
                                                                  >
-                                                                      <div
-                                                                           style={{
-                                                                                display: "flex",
-                                                                                alignItems:
-                                                                                     "center",
+                                                                      <Avatar
+                                                                           src={getAvatarUrl(
+                                                                                message
+                                                                                     .author
+                                                                                     .id,
+                                                                                message
+                                                                                     .author
+                                                                                     .avatar,
+                                                                                message
+                                                                                     .author
+                                                                                     .discriminator
+                                                                           )}
+                                                                           color="primary"
+                                                                           size="sm"
+                                                                           css={{
+                                                                                marginRight:
+                                                                                     "1rem",
+                                                                                borderRadius:
+                                                                                     "50%",
                                                                            }}
-                                                                      >
-                                                                           <Avatar
-                                                                                src={getAvatarUrl(
+                                                                      />
+                                                                      <div>
+                                                                           <strong>
+                                                                                {
                                                                                      message
                                                                                           .author
-                                                                                          .id,
-                                                                                     message
-                                                                                          .author
-                                                                                          .avatar,
-                                                                                     message
-                                                                                          .author
-                                                                                          .discriminator
-                                                                                )}
-                                                                                color="primary"
-                                                                                size="sm"
-                                                                                css={{
-                                                                                     marginRight:
-                                                                                          "1rem",
+                                                                                          .username
+                                                                                }
+                                                                           </strong>
+                                                                           <p>
+                                                                                {
+                                                                                     message.content
+                                                                                }
+                                                                           </p>
+                                                                           <p
+                                                                                style={{
+                                                                                     fontSize:
+                                                                                          "0.75rem",
+                                                                                     color: "#888",
                                                                                 }}
-                                                                           />
-                                                                           <div>
-                                                                                <p>
-                                                                                     <strong>
-                                                                                          {
-                                                                                               message
-                                                                                                    .author
-                                                                                                    .username
-                                                                                          }
-                                                                                     </strong>
-
-                                                                                     :{" "}
-                                                                                     {
-                                                                                          message.content
-                                                                                     }
-                                                                                </p>
-                                                                                <p
-                                                                                     style={{
-                                                                                          fontSize:
-                                                                                               "0.75rem",
-                                                                                          color: "#888",
-                                                                                     }}
-                                                                                >
-                                                                                     {formatDate(
-                                                                                          message.timestamp
-                                                                                     )}
-                                                                                </p>
-                                                                           </div>
+                                                                           >
+                                                                                {formatDate(
+                                                                                     message.timestamp
+                                                                                )}
+                                                                           </p>
                                                                       </div>
                                                                  </div>
                                                             )
                                                        )}
-                                                  </CardBody>
-                                             </Card>
-                                        ))}
-
-                                   <Pagination
-                                        total={totalNumberOfPages}
-                                        page={currentPage}
-                                        onChange={handlePageChange}
-                                   />
-                              </>
-                         )}
+                                        </CardBody>
+                                        <div
+                                             style={{
+                                                  display: "flex",
+                                                  alignItems: "center",
+                                                  justifyContent:
+                                                       "space-between",
+                                                  padding: "0.5rem 1rem",
+                                                  background: "#f5f5f5",
+                                             }}
+                                        >
+                                             <div
+                                                  style={{
+                                                       display: "flex",
+                                                       alignItems: "center",
+                                                  }}
+                                             >
+                                                  {/* Map through your reactions here, ensure you have the icons and counts available */}
+                                                  <span>👍 12</span>
+                                                  <span>❤️ 96</span>
+                                                  {/* ... other reactions */}
+                                             </div>
+                                             <div>
+                                                  {/* Comment and share counts */}
+                                                  <span>💬 13</span>
+                                                  <span>🔗 17</span>
+                                             </div>
+                                        </div>
+                                   </Card>
+                              ))}
+                         <Pagination
+                              total={totalNumberOfPages}
+                              page={currentPage}
+                              onChange={handlePageChange}
+                         />
                     </div>
                </div>
           </Container>
