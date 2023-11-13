@@ -143,7 +143,7 @@ export default function ServerForums() {
                                              activeChannel?.id === channel.id
                                                   ? "primary"
                                                   : "default"
-                                        } // Active state color
+                                        }
                                         onClick={() =>
                                              handleChannelClick(channel.id)
                                         }
@@ -155,12 +155,12 @@ export default function ServerForums() {
                                                   activeChannel?.id ===
                                                   channel.id
                                                        ? "white"
-                                                       : "inherit", // Text color for active state
+                                                       : "inherit",
                                              backgroundColor:
                                                   activeChannel?.id ===
                                                   channel.id
                                                        ? "#0070f3"
-                                                       : "transparent", // Background color for active state
+                                                       : "transparent",
                                         }}
                                    >
                                         {channel.name}
@@ -189,6 +189,8 @@ export default function ServerForums() {
                                                   display: "flex",
                                                   flexDirection: "column",
                                                   alignItems: "flex-start",
+                                                  justifyContent:
+                                                       "space-between",
                                              }}
                                         >
                                              <Avatar
@@ -205,7 +207,7 @@ export default function ServerForums() {
                                                   css={{
                                                        marginBottom: "1rem",
                                                        borderRadius: "50%",
-                                                  }} // Ensures the avatar is circular
+                                                  }}
                                              />
                                              <div
                                                   style={{
@@ -215,7 +217,11 @@ export default function ServerForums() {
                                                        width: "100%",
                                                   }}
                                              >
-                                                  <h4 style={{ margin: 0 }}>
+                                                  <h4
+                                                       style={{
+                                                            margin: 0,
+                                                       }}
+                                                  >
                                                        {
                                                             thread.messages[0]
                                                                  .author
@@ -240,89 +246,89 @@ export default function ServerForums() {
                                                   toggleThread(thread.id)
                                              }
                                         >
-                                             <p>{thread.messages[0].content}</p>
-                                             {expandedThreadId === thread.id &&
-                                                  thread.messages
-                                                       .slice(1)
-                                                       .map(
-                                                            (
-                                                                 message,
-                                                                 index
-                                                            ) => (
-                                                                 <div
-                                                                      key={
-                                                                           index
+                                             <h3 className="text-md d-block block">
+                                                  <strong>{thread.name}</strong>
+                                             </h3>
+                                             {thread.messages
+                                                  .slice(
+                                                       0,
+                                                       expandedThreadId ===
+                                                            thread.id
+                                                            ? thread.messages
+                                                                   .length
+                                                            : 1
+                                                  )
+                                                  .map((message, index) => (
+                                                       <div
+                                                            key={index}
+                                                            style={{
+                                                                 display: "flex",
+                                                                 alignItems:
+                                                                      "center",
+                                                                 marginTop:
+                                                                      "1rem",
+                                                            }}
+                                                       >
+                                                            <Avatar
+                                                                 src={getAvatarUrl(
+                                                                      message
+                                                                           .author
+                                                                           .id,
+                                                                      message
+                                                                           .author
+                                                                           .avatar,
+                                                                      message
+                                                                           .author
+                                                                           .discriminator
+                                                                 )}
+                                                                 color="primary"
+                                                                 size="sm"
+                                                                 css={{
+                                                                      marginRight:
+                                                                           "1rem",
+                                                                      borderRadius:
+                                                                           "50%",
+                                                                 }}
+                                                            />
+                                                            <div>
+                                                                 <strong>
+                                                                      {
+                                                                           message
+                                                                                .author
+                                                                                .username
                                                                       }
+                                                                 </strong>
+                                                                 <p>
+                                                                      {
+                                                                           message.content
+                                                                      }
+                                                                 </p>
+                                                                 <p
                                                                       style={{
-                                                                           display: "flex",
-                                                                           alignItems:
-                                                                                "center",
-                                                                           marginTop:
-                                                                                "1rem",
+                                                                           fontSize:
+                                                                                "0.75rem",
+                                                                           color: "#888",
                                                                       }}
+                                                                      title={formatDate(
+                                                                           message.timestamp
+                                                                      )}
+                                                                      data-date={
+                                                                           message.timestamp
+                                                                      }
                                                                  >
-                                                                      <Avatar
-                                                                           src={getAvatarUrl(
-                                                                                message
-                                                                                     .author
-                                                                                     .id,
-                                                                                message
-                                                                                     .author
-                                                                                     .avatar,
-                                                                                message
-                                                                                     .author
-                                                                                     .discriminator
-                                                                           )}
-                                                                           color="primary"
-                                                                           size="sm"
-                                                                           css={{
-                                                                                marginRight:
-                                                                                     "1rem",
-                                                                                borderRadius:
-                                                                                     "50%",
-                                                                           }}
-                                                                      />
-                                                                      <div>
-                                                                           <strong>
-                                                                                {
-                                                                                     message
-                                                                                          .author
-                                                                                          .username
-                                                                                }
-                                                                           </strong>
-                                                                           <p>
-                                                                                {
-                                                                                     message.content
-                                                                                }
-                                                                           </p>
-                                                                           <p
-                                                                                style={{
-                                                                                     fontSize:
-                                                                                          "0.75rem",
-                                                                                     color: "#888",
-                                                                                }}
-                                                                                title={formatDate(
-                                                                                     message.timestamp
-                                                                                )}
-                                                                                data-date={
-                                                                                     message.timestamp
-                                                                                }
-                                                                           >
-                                                                                {formatDistanceToNow(
-                                                                                     new Date(
-                                                                                          message.timestamp
-                                                                                     ),
-                                                                                     {
-                                                                                          addSuffix:
-                                                                                               true,
-                                                                                     }
-                                                                                )}
-                                                                           </p>
-                                                                      </div>
-                                                                 </div>
-                                                            )
-                                                       )}
-
+                                                                      {formatDistanceToNow(
+                                                                           new Date(
+                                                                                message.timestamp
+                                                                           ),
+                                                                           {
+                                                                                addSuffix:
+                                                                                     true,
+                                                                           }
+                                                                      )}
+                                                                 </p>
+                                                            </div>
+                                                       </div>
+                                                  ))}
                                              <Button
                                                   flat
                                                   onClick={() =>
@@ -336,7 +342,7 @@ export default function ServerForums() {
                                                             expandedThreadId ===
                                                             thread.id
                                                                  ? "red"
-                                                                 : "blue", // Change colors as needed
+                                                                 : "blue",
                                                   }}
                                              >
                                                   {expandedThreadId ===
@@ -361,7 +367,7 @@ export default function ServerForums() {
                                                        alignItems: "center",
                                                   }}
                                              >
-                                                  {/* Map through your reactions here, ensure you have the icons and counts available */}
+                                                  {/* Reactions and comment count */}
                                                   <span>👍 12</span>
                                                   <span>❤️ 96</span>
                                                   {/* ... other reactions */}
