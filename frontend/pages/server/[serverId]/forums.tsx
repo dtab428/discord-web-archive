@@ -276,87 +276,175 @@ export default function ServerForums() {
                                              <h3 className="text-md d-block block">
                                                   <strong>{thread.name}</strong>
                                              </h3>
-                                             {thread.messages
-                                                  .slice(
-                                                       0,
-                                                       expandedThreadId ===
-                                                            thread.id
-                                                            ? thread.messages
-                                                                   .length
-                                                            : 1
-                                                  )
-                                                  .reverse()
-                                                  .map((message, index) => (
-                                                       <div
-                                                            key={index}
-                                                            style={{
-                                                                 display: "flex",
-                                                                 alignItems:
-                                                                      "center",
-                                                                 marginTop:
-                                                                      "1rem",
-                                                            }}
-                                                       >
-                                                            <Avatar
-                                                                 src={getAvatarUrl(
-                                                                      message
-                                                                           .author
-                                                                           .id,
-                                                                      message
-                                                                           .author
-                                                                           .avatar,
-                                                                      message
-                                                                           .author
-                                                                           .discriminator
-                                                                 )}
-                                                                 color="primary"
-                                                                 size="sm"
-                                                                 css={{
-                                                                      marginRight:
-                                                                           "1rem",
-                                                                      borderRadius:
-                                                                           "50%",
-                                                                 }}
-                                                            />
-                                                            <div>
-                                                                 <strong>
-                                                                      {
-                                                                           message
-                                                                                .author
-                                                                                .username
+                                             {expandedThreadId === thread.id ? (
+                                                  thread.messages
+                                                       .slice()
+                                                       .reverse()
+                                                       .map(
+                                                            (
+                                                                 message,
+                                                                 index
+                                                            ) => (
+                                                                 <div
+                                                                      key={
+                                                                           index
                                                                       }
-                                                                 </strong>
-                                                                 <p>
-                                                                      {
-                                                                           message.content
-                                                                      }
-                                                                 </p>
-                                                                 <p
                                                                       style={{
-                                                                           fontSize:
-                                                                                "0.75rem",
-                                                                           color: "#888",
+                                                                           display: "flex",
+                                                                           alignItems:
+                                                                                "center",
+                                                                           marginTop:
+                                                                                "1rem",
                                                                       }}
-                                                                      title={formatDate(
-                                                                           message.timestamp
-                                                                      )}
-                                                                      data-date={
-                                                                           message.timestamp
-                                                                      }
                                                                  >
-                                                                      {formatDistanceToNow(
-                                                                           new Date(
-                                                                                message.timestamp
-                                                                           ),
-                                                                           {
-                                                                                addSuffix:
-                                                                                     true,
-                                                                           }
-                                                                      )}
-                                                                 </p>
-                                                            </div>
+                                                                      <Avatar
+                                                                           src={getAvatarUrl(
+                                                                                message
+                                                                                     .author
+                                                                                     .id,
+                                                                                message
+                                                                                     .author
+                                                                                     .avatar,
+                                                                                message
+                                                                                     .author
+                                                                                     .discriminator
+                                                                           )}
+                                                                           color="primary"
+                                                                           size="sm"
+                                                                           css={{
+                                                                                marginRight:
+                                                                                     "1rem",
+                                                                                borderRadius:
+                                                                                     "50%",
+                                                                           }}
+                                                                      />
+                                                                      <div>
+                                                                           <strong>
+                                                                                {
+                                                                                     message
+                                                                                          .author
+                                                                                          .username
+                                                                                }
+                                                                           </strong>
+                                                                           <p>
+                                                                                {
+                                                                                     message.content
+                                                                                }
+                                                                           </p>
+                                                                           <p
+                                                                                style={{
+                                                                                     fontSize:
+                                                                                          "0.75rem",
+                                                                                     color: "#888",
+                                                                                }}
+                                                                           >
+                                                                                {formatDistanceToNow(
+                                                                                     new Date(
+                                                                                          message.timestamp
+                                                                                     ),
+                                                                                     {
+                                                                                          addSuffix:
+                                                                                               true,
+                                                                                     }
+                                                                                )}
+                                                                           </p>
+                                                                      </div>
+                                                                 </div>
+                                                            )
+                                                       )
+                                             ) : (
+                                                  <div
+                                                       style={{
+                                                            display: "flex",
+                                                            alignItems:
+                                                                 "center",
+                                                            marginTop: "1rem",
+                                                       }}
+                                                  >
+                                                       <Avatar
+                                                            src={getAvatarUrl(
+                                                                 thread
+                                                                      .messages[
+                                                                      thread
+                                                                           .messages
+                                                                           .length -
+                                                                           1
+                                                                 ].author.id,
+                                                                 thread
+                                                                      .messages[
+                                                                      thread
+                                                                           .messages
+                                                                           .length -
+                                                                           1
+                                                                 ].author
+                                                                      .avatar,
+                                                                 thread
+                                                                      .messages[
+                                                                      thread
+                                                                           .messages
+                                                                           .length -
+                                                                           1
+                                                                 ].author
+                                                                      .discriminator
+                                                            )}
+                                                            color="primary"
+                                                            size="sm"
+                                                            css={{
+                                                                 marginRight:
+                                                                      "1rem",
+                                                                 borderRadius:
+                                                                      "50%",
+                                                            }}
+                                                       />
+                                                       <div>
+                                                            <strong>
+                                                                 {
+                                                                      thread
+                                                                           .messages[
+                                                                           thread
+                                                                                .messages
+                                                                                .length -
+                                                                                1
+                                                                      ].author
+                                                                           .username
+                                                                 }
+                                                            </strong>
+                                                            <p>
+                                                                 {
+                                                                      thread
+                                                                           .messages[
+                                                                           thread
+                                                                                .messages
+                                                                                .length -
+                                                                                1
+                                                                      ].content
+                                                                 }
+                                                            </p>
+                                                            <p
+                                                                 style={{
+                                                                      fontSize:
+                                                                           "0.75rem",
+                                                                      color: "#888",
+                                                                 }}
+                                                            >
+                                                                 {formatDistanceToNow(
+                                                                      new Date(
+                                                                           thread.messages[
+                                                                                thread
+                                                                                     .messages
+                                                                                     .length -
+                                                                                     1
+                                                                           ].timestamp
+                                                                      ),
+                                                                      {
+                                                                           addSuffix:
+                                                                                true,
+                                                                      }
+                                                                 )}
+                                                            </p>
                                                        </div>
-                                                  ))}
+                                                  </div>
+                                             )}
                                              <Button
                                                   flat
                                                   onClick={() =>
@@ -379,6 +467,7 @@ export default function ServerForums() {
                                                        : "Expand Thread"}
                                              </Button>
                                         </CardBody>
+
                                         <div
                                              style={{
                                                   display: "flex",
