@@ -178,6 +178,7 @@ export default function ServerForums() {
                               )
                               .map((thread) => (
                                    <Card
+                                        className="my-5"
                                         key={thread.id}
                                         css={{
                                              marginBottom: "$8",
@@ -195,12 +196,18 @@ export default function ServerForums() {
                                         >
                                              <Avatar
                                                   src={getAvatarUrl(
-                                                       thread.messages[0].author
-                                                            .id,
-                                                       thread.messages[0].author
-                                                            .avatar,
-                                                       thread.messages[0].author
-                                                            .discriminator
+                                                       thread.messages[
+                                                            thread.messages
+                                                                 .length - 1
+                                                       ].author.id,
+                                                       thread.messages[
+                                                            thread.messages
+                                                                 .length - 1
+                                                       ].author.avatar,
+                                                       thread.messages[
+                                                            thread.messages
+                                                                 .length - 1
+                                                       ].author.discriminator
                                                   )}
                                                   color="primary"
                                                   size="md"
@@ -258,6 +265,7 @@ export default function ServerForums() {
                                                                    .length
                                                             : 1
                                                   )
+                                                  .reverse()
                                                   .map((message, index) => (
                                                        <div
                                                             key={index}
