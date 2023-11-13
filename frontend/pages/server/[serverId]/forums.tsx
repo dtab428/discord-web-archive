@@ -9,6 +9,7 @@ import {
      Avatar,
      Pagination,
      Button,
+     Tooltip,
 } from "@nextui-org/react";
 import Container from "../../../components/container";
 import { format, parseISO, formatDistanceToNow } from "date-fns";
@@ -224,28 +225,47 @@ export default function ServerForums() {
                                                        width: "100%",
                                                   }}
                                              >
-                                                  <h4
-                                                       style={{
-                                                            margin: 0,
-                                                       }}
-                                                  >
+                                                  <h4 style={{ margin: 0 }}>
+                                                       {/* Replace with actual username or other content */}
                                                        {
-                                                            thread.messages[0]
-                                                                 .author
-                                                                 .username
+                                                            thread.messages[
+                                                                 thread.messages
+                                                                      .length -
+                                                                      1
+                                                            ].author.username
                                                        }
                                                   </h4>
-                                                  <p style={{ margin: 0 }}>
-                                                       {formatDistanceToNow(
-                                                            new Date(
-                                                                 thread.messages[0].timestamp
-                                                            ),
-                                                            {
-                                                                 addSuffix:
-                                                                      true,
-                                                            }
+                                                  <Tooltip
+                                                       content={formatDate(
+                                                            thread.messages[
+                                                                 thread.messages
+                                                                      .length -
+                                                                      1
+                                                            ].timestamp
                                                        )}
-                                                  </p>
+                                                  >
+                                                       <p
+                                                            style={{
+                                                                 margin: 0,
+                                                                 cursor: "pointer",
+                                                            }}
+                                                       >
+                                                            {formatDistanceToNow(
+                                                                 new Date(
+                                                                      thread.messages[
+                                                                           thread
+                                                                                .messages
+                                                                                .length -
+                                                                                1
+                                                                      ].timestamp
+                                                                 ),
+                                                                 {
+                                                                      addSuffix:
+                                                                           true,
+                                                                 }
+                                                            )}
+                                                       </p>
+                                                  </Tooltip>
                                              </div>
                                         </CardHeader>
                                         <CardBody
@@ -381,9 +401,22 @@ export default function ServerForums() {
                                                   {/* ... other reactions */}
                                              </div>
                                              <div>
-                                                  {/* Comment and share counts */}
-                                                  <span>💬 13</span>
-                                                  <span>🔗 17</span>
+                                                  {/* Dynamic message count */}
+                                                  <span>
+                                                       💬{" "}
+                                                       {
+                                                            thread.total_message_sent
+                                                       }
+                                                  </span>
+
+                                                  {/* Dynamic member count */}
+                                                  <span
+                                                       style={{
+                                                            marginLeft: "10px",
+                                                       }}
+                                                  >
+                                                       👥 {thread.member_count}
+                                                  </span>
                                              </div>
                                         </div>
                                    </Card>
