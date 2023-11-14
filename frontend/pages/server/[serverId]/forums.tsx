@@ -22,6 +22,7 @@ export default function ServerForums() {
           channels: [],
           threads: [],
           serverAvatar: "",
+          serverName: "",
      });
      const [loading, setLoading] = useState(true);
 
@@ -52,10 +53,14 @@ export default function ServerForums() {
                          const serverAvatar = guild
                               ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`
                               : "";
+                         const serverName = guild
+                              ? guild.name
+                              : "Unknown Server";
                          setData({
                               channels: forumData.channels,
                               threads: forumData.threads,
                               serverAvatar: serverAvatar,
+                              serverName: serverName,
                          });
                     })
                     .catch((error) =>
@@ -86,6 +91,7 @@ export default function ServerForums() {
      };
 
      console.log(data);
+
      const handleChannelClick = (channelId) => {
           // Find the channel in the 'channels' array
           const channel = data.channels.find(
@@ -131,6 +137,21 @@ export default function ServerForums() {
 
      return (
           <Container>
+               {/* Hero section */}
+               <div
+                    style={{
+                         display: "flex",
+                         alignItems: "center",
+                         marginBottom: "20px",
+                    }}
+               >
+                    <Avatar
+                         src={data.serverAvatar}
+                         size="lg"
+                         css={{ marginRight: "10px" }}
+                    />
+                    <h1>{data.serverName}</h1>
+               </div>
                <div style={{ display: "flex", gap: "20px" }}>
                     {/* Channels list on the left */}
                     <div style={{ flex: "1", minWidth: "300px" }}>
@@ -291,62 +312,71 @@ export default function ServerForums() {
                                                                       }
                                                                       style={{
                                                                            display: "flex",
-                                                                           alignItems:
-                                                                                "center",
+
                                                                            marginTop:
                                                                                 "1rem",
                                                                       }}
                                                                  >
-                                                                      <Avatar
-                                                                           src={getAvatarUrl(
-                                                                                message
-                                                                                     .author
-                                                                                     .id,
-                                                                                message
-                                                                                     .author
-                                                                                     .avatar,
-                                                                                message
-                                                                                     .author
-                                                                                     .discriminator
-                                                                           )}
-                                                                           color="primary"
-                                                                           size="sm"
-                                                                           css={{
-                                                                                marginRight:
-                                                                                     "1rem",
-                                                                                borderRadius:
-                                                                                     "50%",
+                                                                      <div
+                                                                           style={{
+                                                                                width: "32px",
+                                                                                height: "32px",
                                                                            }}
-                                                                      />
-                                                                      <div>
-                                                                           <strong>
-                                                                                {
+                                                                           className="me-1"
+                                                                      >
+                                                                           <Avatar
+                                                                                src={getAvatarUrl(
                                                                                      message
                                                                                           .author
-                                                                                          .username
-                                                                                }
-                                                                           </strong>
+                                                                                          .id,
+                                                                                     message
+                                                                                          .author
+                                                                                          .avatar,
+                                                                                     message
+                                                                                          .author
+                                                                                          .discriminator
+                                                                                )}
+                                                                                color="primary"
+                                                                                size="sm"
+                                                                                css={{
+                                                                                     borderRadius:
+                                                                                          "50%",
+                                                                                }}
+                                                                           />
+                                                                      </div>
+
+                                                                      <div>
+                                                                           <div className="flex items-center">
+                                                                                <strong>
+                                                                                     {
+                                                                                          message
+                                                                                               .author
+                                                                                               .username
+                                                                                     }
+                                                                                </strong>
+                                                                                <p
+                                                                                     className="ms-1"
+                                                                                     style={{
+                                                                                          fontSize:
+                                                                                               "0.75rem",
+                                                                                          color: "#888",
+                                                                                     }}
+                                                                                >
+                                                                                     {formatDistanceToNow(
+                                                                                          new Date(
+                                                                                               message.timestamp
+                                                                                          ),
+                                                                                          {
+                                                                                               addSuffix:
+                                                                                                    true,
+                                                                                          }
+                                                                                     )}
+                                                                                </p>
+                                                                           </div>
                                                                            <p>
                                                                                 {
                                                                                      message.content
                                                                                 }
-                                                                           </p>
-                                                                           <p
-                                                                                style={{
-                                                                                     fontSize:
-                                                                                          "0.75rem",
-                                                                                     color: "#888",
-                                                                                }}
-                                                                           >
-                                                                                {formatDistanceToNow(
-                                                                                     new Date(
-                                                                                          message.timestamp
-                                                                                     ),
-                                                                                     {
-                                                                                          addSuffix:
-                                                                                               true,
-                                                                                     }
-                                                                                )}
                                                                            </p>
                                                                       </div>
                                                                  </div>
@@ -361,44 +391,15 @@ export default function ServerForums() {
                                                             marginTop: "1rem",
                                                        }}
                                                   >
-                                                       <Avatar
-                                                            src={getAvatarUrl(
-                                                                 thread
-                                                                      .messages[
-                                                                      thread
-                                                                           .messages
-                                                                           .length -
-                                                                           1
-                                                                 ].author.id,
-                                                                 thread
-                                                                      .messages[
-                                                                      thread
-                                                                           .messages
-                                                                           .length -
-                                                                           1
-                                                                 ].author
-                                                                      .avatar,
-                                                                 thread
-                                                                      .messages[
-                                                                      thread
-                                                                           .messages
-                                                                           .length -
-                                                                           1
-                                                                 ].author
-                                                                      .discriminator
-                                                            )}
-                                                            color="primary"
-                                                            size="sm"
-                                                            css={{
-                                                                 marginRight:
-                                                                      "1rem",
-                                                                 borderRadius:
-                                                                      "50%",
+                                                       <div
+                                                            style={{
+                                                                 width: "32px",
+                                                                 height: "32px",
                                                             }}
-                                                       />
-                                                       <div>
-                                                            <strong>
-                                                                 {
+                                                            className="me-1"
+                                                       >
+                                                            <Avatar
+                                                                 src={getAvatarUrl(
                                                                       thread
                                                                            .messages[
                                                                            thread
@@ -406,9 +407,74 @@ export default function ServerForums() {
                                                                                 .length -
                                                                                 1
                                                                       ].author
-                                                                           .username
-                                                                 }
-                                                            </strong>
+                                                                           .id,
+                                                                      thread
+                                                                           .messages[
+                                                                           thread
+                                                                                .messages
+                                                                                .length -
+                                                                                1
+                                                                      ].author
+                                                                           .avatar,
+                                                                      thread
+                                                                           .messages[
+                                                                           thread
+                                                                                .messages
+                                                                                .length -
+                                                                                1
+                                                                      ].author
+                                                                           .discriminator
+                                                                 )}
+                                                                 color="primary"
+                                                                 size="sm"
+                                                                 css={{
+                                                                      marginRight:
+                                                                           "1rem",
+                                                                      borderRadius:
+                                                                           "50%",
+                                                                 }}
+                                                            />
+                                                       </div>
+
+                                                       <div>
+                                                            <div className="flex items-center">
+                                                                 <strong>
+                                                                      {
+                                                                           thread
+                                                                                .messages[
+                                                                                thread
+                                                                                     .messages
+                                                                                     .length -
+                                                                                     1
+                                                                           ]
+                                                                                .author
+                                                                                .username
+                                                                      }
+                                                                 </strong>
+                                                                 <p
+                                                                      className="ms-1"
+                                                                      style={{
+                                                                           fontSize:
+                                                                                "0.75rem",
+                                                                           color: "#888",
+                                                                      }}
+                                                                 >
+                                                                      {formatDistanceToNow(
+                                                                           new Date(
+                                                                                thread.messages[
+                                                                                     thread
+                                                                                          .messages
+                                                                                          .length -
+                                                                                          1
+                                                                                ].timestamp
+                                                                           ),
+                                                                           {
+                                                                                addSuffix:
+                                                                                     true,
+                                                                           }
+                                                                      )}
+                                                                 </p>
+                                                            </div>
                                                             <p>
                                                                  {
                                                                       thread
@@ -420,28 +486,6 @@ export default function ServerForums() {
                                                                       ].content
                                                                  }
                                                             </p>
-                                                            <p
-                                                                 style={{
-                                                                      fontSize:
-                                                                           "0.75rem",
-                                                                      color: "#888",
-                                                                 }}
-                                                            >
-                                                                 {formatDistanceToNow(
-                                                                      new Date(
-                                                                           thread.messages[
-                                                                                thread
-                                                                                     .messages
-                                                                                     .length -
-                                                                                     1
-                                                                           ].timestamp
-                                                                      ),
-                                                                      {
-                                                                           addSuffix:
-                                                                                true,
-                                                                      }
-                                                                 )}
-                                                            </p>
                                                        </div>
                                                   </div>
                                              )}
@@ -450,6 +494,7 @@ export default function ServerForums() {
                                                   onClick={() =>
                                                        toggleThread(thread.id)
                                                   }
+                                                  className="mt-3"
                                                   css={{
                                                        width: "100%",
                                                        justifyContent: "center",
