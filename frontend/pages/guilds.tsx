@@ -1,3 +1,4 @@
+//pages/guilds.tsx
 import { useEffect, useState } from "react";
 import { Card, Avatar, Spacer } from "@nextui-org/react";
 import { useSession } from "next-auth/react";

@@ -98,12 +98,13 @@ export default function ServerForums() {
           if (!router.isReady) return;
 
           const { channelId, page } = router.query;
+
+          // Set the currentPage to 1 if no page parameter is provided
+          const pageNumber = page ? parseInt(page, 10) : 1;
+          setCurrentPage(pageNumber);
+
           if (channelId && data.channels.length > 0) {
                handleChannelClick(channelId, true); // true for isInitialLoad
-          }
-
-          if (page) {
-               setCurrentPage(parseInt(page, 10));
           }
      }, [router.isReady, router.query, data.channels]);
 
@@ -209,8 +210,9 @@ export default function ServerForums() {
                          src={data.serverAvatar}
                          size="lg"
                          css={{ marginRight: "10px" }}
+                         className="me-2"
                     />
-                    <h1>{data.serverName}</h1>
+                    <h1 className="text-md">{data.serverName}</h1>
                </div>
                <div style={{ display: "flex", gap: "20px" }}>
                     {/* Channels list on the left */}
@@ -616,11 +618,13 @@ export default function ServerForums() {
                                         </div>
                                    </Card>
                               ))}
-                         <Pagination
-                              total={totalNumberOfPages}
-                              page={currentPage}
-                              onChange={handlePageChange}
-                         />
+                         {totalNumberOfPages > 1 && (
+                              <Pagination
+                                   total={totalNumberOfPages}
+                                   page={currentPage}
+                                   onChange={handlePageChange}
+                              />
+                         )}
                     </div>
                </div>
           </Container>
