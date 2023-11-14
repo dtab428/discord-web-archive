@@ -65,10 +65,6 @@ export default function ServerForums() {
           }
      }, [serverId]);
 
-     useEffect(() => {
-          setCurrentPage(1);
-     }, [activeChannel]);
-
      // Recalculate totalNumberOfPages when activeThreads changes
      useEffect(() => {
           const newTotalPages = Math.ceil(activeThreads.length / postsPerPage);
@@ -98,13 +94,18 @@ export default function ServerForums() {
           }
      }, [serverId]); // Fetch channels and threads only when serverId changes
 
-     if (loading) {
-          return (
-               <Container>
-                    <Spinner />
-               </Container>
-          );
-     }
+     useEffect(() => {
+          if (!router.isReady) return;
+
+          const { channelId, page } = router.query;
+          if (channelId && data.channels.length > 0) {
+               handleChannelClick(channelId, true); // true for isInitialLoad
+          }
+
+          if (page) {
+               setCurrentPage(parseInt(page, 10));
+          }
+     }, [router.isReady, router.query, data.channels]);
 
      // Function to get the avatar URL
      const getAvatarUrl = (userId, avatarHash, discriminator) => {
@@ -120,41 +121,64 @@ export default function ServerForums() {
 
      console.log(data);
 
-     const handleChannelClick = (channelId) => {
-          // Find the channel in the 'channels' array
-          const channel = data.channels.find(
-               (channel) => channel.id === channelId
-          );
-          if (channel) {
-               // Set the active channel
-               setActiveChannel(channel);
+     const handleChannelClick = (channelId, isInitialLoad = false) => {
+          // Check if the clicked channel is already active
+          if (channelId !== activeChannel?.id) {
+               // Determine the page number to use: either from the URL (if initial load) or default to 1
+               const urlPageNumber =
+                    isInitialLoad && router.query.page
+                         ? parseInt(router.query.page, 10)
+                         : 1;
 
-               // Assuming data.threads is an array of arrays where each inner array
-               // corresponds to threads of a particular channel
-               // Find the index of the channel in the 'channels' array
-               const channelIndex = data.channels.findIndex(
-                    (ch) => ch.id === channelId
+               // Update the URL with the appropriate page number
+               router.push(
+                    `?serverId=${serverId}&channelId=${channelId}&page=${urlPageNumber}`,
+                    undefined,
+                    { shallow: true }
                );
 
-               if (channelIndex !== -1 && data.threads[channelIndex]) {
-                    // Filter threads where 'parent_id' matches the 'channelId'
-                    const filteredThreads = data.threads[channelIndex].filter(
-                         (thread) => thread.parent_id === channelId
+               // Find the channel in the 'channels' array
+               const channel = data.channels.find((ch) => ch.id === channelId);
+               if (channel) {
+                    // Set the active channel
+                    setActiveChannel(channel);
+
+                    // Set the current page based on the URL parameter or reset to 1
+                    if (!isInitialLoad) {
+                         setCurrentPage(1);
+                    } else if (router.query.page) {
+                         setCurrentPage(urlPageNumber);
+                    }
+
+                    // Assuming data.threads is an array of arrays for each channel
+                    const channelIndex = data.channels.findIndex(
+                         (ch) => ch.id === channelId
                     );
-                    setActiveThreads(filteredThreads);
+                    if (channelIndex !== -1 && data.threads[channelIndex]) {
+                         // Filter threads for the selected channel
+                         const filteredThreads = data.threads[
+                              channelIndex
+                         ].filter((thread) => thread.parent_id === channelId);
+                         setActiveThreads(filteredThreads);
+                    } else {
+                         console.error("Threads not found for the channel");
+                         setActiveThreads([]);
+                    }
                } else {
-                    console.error("Threads not found for the channel");
+                    console.error("Channel not found");
                     setActiveThreads([]);
                }
-          } else {
-               console.error("Channel not found");
-               setActiveThreads([]);
           }
      };
 
      const handlePageChange = (newPage) => {
-          setCurrentPage(newPage);
           // Fetch threads for the new page
+          setCurrentPage(newPage);
+          router.push(
+               `?serverId=${serverId}&channelId=${activeChannel?.id}&page=${newPage}`,
+               undefined,
+               { shallow: true }
+          );
      };
 
      const totalNumberOfPages = Math.ceil(activeThreads.length / postsPerPage);
@@ -162,6 +186,14 @@ export default function ServerForums() {
      const toggleThread = (threadId) => {
           setExpandedThreadId(expandedThreadId === threadId ? null : threadId);
      };
+
+     if (loading) {
+          return (
+               <Container>
+                    <Spinner />
+               </Container>
+          );
+     }
 
      return (
           <Container>
@@ -416,8 +448,6 @@ export default function ServerForums() {
                                                   <div
                                                        style={{
                                                             display: "flex",
-                                                            alignItems:
-                                                                 "center",
                                                             marginTop: "1rem",
                                                        }}
                                                   >
