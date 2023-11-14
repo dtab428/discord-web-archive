@@ -65,6 +65,18 @@ export default function ServerForums() {
           }
      }, [serverId]);
 
+     useEffect(() => {
+          setCurrentPage(1);
+     }, [activeChannel]);
+
+     // Recalculate totalNumberOfPages when activeThreads changes
+     useEffect(() => {
+          const newTotalPages = Math.ceil(activeThreads.length / postsPerPage);
+          if (currentPage > newTotalPages) {
+               setCurrentPage(newTotalPages || 1);
+          }
+     }, [activeThreads, postsPerPage, currentPage]);
+
      const fetchChannelsAndThreads = (serverId) => {
           fetch(`/api/forums/${serverId}`)
                .then((res) =>
@@ -233,6 +245,7 @@ export default function ServerForums() {
                                              }}
                                         >
                                              <Avatar
+                                                  className="me-1"
                                                   src={getAvatarUrl(
                                                        thread.messages[
                                                             thread.messages
@@ -254,6 +267,7 @@ export default function ServerForums() {
                                                        borderRadius: "50%",
                                                   }}
                                              />
+
                                              <div
                                                   style={{
                                                        display: "flex",
