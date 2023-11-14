@@ -40,15 +40,11 @@ export default function ServerForums() {
      useEffect(() => {
           if (serverId) {
                setLoading(true);
-               Promise.all([
-                    fetch(`/api/forums/${serverId}`).then((res) =>
+               fetch(`/api/guilds`)
+                    .then((res) =>
                          res.ok ? res.json() : Promise.reject(res.statusText)
-                    ),
-                    fetch(`/api/guilds`).then((res) =>
-                         res.ok ? res.json() : Promise.reject(res.statusText)
-                    ),
-               ])
-                    .then(([forumData, guilds]) => {
+                    )
+                    .then((guilds) => {
                          const guild = guilds.find((g) => g.id === serverId);
                          const serverAvatar = guild
                               ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`
@@ -56,12 +52,11 @@ export default function ServerForums() {
                          const serverName = guild
                               ? guild.name
                               : "Unknown Server";
-                         setData({
-                              channels: forumData.channels,
-                              threads: forumData.threads,
+                         setData((prevData) => ({
+                              ...prevData,
                               serverAvatar: serverAvatar,
                               serverName: serverName,
-                         });
+                         }));
                     })
                     .catch((error) =>
                          console.error("Error fetching data:", error)
@@ -69,6 +64,27 @@ export default function ServerForums() {
                     .finally(() => setLoading(false));
           }
      }, [serverId]);
+
+     const fetchChannelsAndThreads = (serverId) => {
+          fetch(`/api/forums/${serverId}`)
+               .then((res) =>
+                    res.ok ? res.json() : Promise.reject(res.statusText)
+               )
+               .then((forumData) => {
+                    setData((prevData) => ({
+                         ...prevData,
+                         channels: forumData.channels,
+                         threads: forumData.threads,
+                    }));
+               })
+               .catch((error) => console.error("Error fetching data:", error));
+     };
+
+     useEffect(() => {
+          if (serverId) {
+               fetchChannelsAndThreads(serverId);
+          }
+     }, [serverId]); // Fetch channels and threads only when serverId changes
 
      if (loading) {
           return (
