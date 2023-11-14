@@ -40,22 +40,16 @@ export default function ServerForums() {
      useEffect(() => {
           if (serverId) {
                setLoading(true);
-               fetch(`/api/guilds`)
+               fetch(`/api/servers/${serverId}`)
                     .then((res) =>
                          res.ok ? res.json() : Promise.reject(res.statusText)
                     )
-                    .then((guilds) => {
-                         const guild = guilds.find((g) => g.id === serverId);
-                         const serverAvatar = guild
-                              ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`
-                              : "";
-                         const serverName = guild
-                              ? guild.name
-                              : "Unknown Server";
+                    .then((serverDetails) => {
                          setData((prevData) => ({
                               ...prevData,
-                              serverAvatar: serverAvatar,
-                              serverName: serverName,
+                              serverAvatar: `https://cdn.discordapp.com/icons/${serverId}/${serverDetails.icon}.png`,
+                              serverName:
+                                   serverDetails.name || "Unknown Server",
                          }));
                     })
                     .catch((error) =>

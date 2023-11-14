@@ -119,14 +119,15 @@ export default async function handler(
 ) {
      const { serverId } = req.query;
 
-     const session: CustomSession | null = await getSession({ req });
+     // Commenting this out for now. These lines restrict our app to force a login in order to view the forums
+     // const session: CustomSession | null = await getSession({ req });
 
-     if (!session || !session.accessToken) {
-          res.status(401).send({
-               error: "Authentication session not found or missing token.",
-          });
-          return;
-     }
+     // if (!session || !session.accessToken) {
+     //      res.status(401).send({
+     //           error: "Authentication session not found or missing token.",
+     //      });
+     //      return;
+     // }
 
      const channelsResponse = await fetch(
           `https://discord.com/api/v10/guilds/${serverId}/channels`,
