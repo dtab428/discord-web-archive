@@ -78,6 +78,21 @@ export default function ServerForums() {
                          channels: forumData.channels,
                          threads: forumData.threads,
                     }));
+
+                    // Check if channelId is present, else set the first channel as active
+                    if (
+                         !router.query.channelId &&
+                         forumData.channels.length > 0
+                    ) {
+                         setActiveChannel(forumData.channels[0]);
+                         setActiveThreads(
+                              forumData.threads[0].filter(
+                                   (thread) =>
+                                        thread.parent_id ===
+                                        forumData.channels[0].id
+                              )
+                         );
+                    }
                })
                .catch((error) => console.error("Error fetching data:", error));
      };
@@ -113,8 +128,6 @@ export default function ServerForums() {
                }.png`;
           }
      };
-
-     console.log(data);
 
      const handleChannelClick = (channelId, isInitialLoad = false) => {
           // Check if the clicked channel is already active
@@ -190,6 +203,8 @@ export default function ServerForums() {
           );
      }
 
+     console.log(data);
+
      return (
           <Container>
                {/* Hero section */}
@@ -212,6 +227,9 @@ export default function ServerForums() {
                     {/* Channels list on the left */}
                     <div style={{ flex: "1", minWidth: "300px" }}>
                          <div style={{ position: "sticky", top: "20px" }}>
+                              <h3 className="text-md font-bold mb-3">
+                                   Channels
+                              </h3>
                               {data.channels.map((channel) => (
                                    <Button
                                         key={channel.id}
@@ -350,7 +368,9 @@ export default function ServerForums() {
                                         </CardHeader>
                                         <CardBody
                                              onClick={() =>
-                                                  toggleThread(thread.id)
+                                                  thread.message_count > 0
+                                                       ? toggleThread(thread.id)
+                                                       : ""
                                              }
                                         >
                                              <h3 className="text-md d-block block">
@@ -546,28 +566,37 @@ export default function ServerForums() {
                                                        </div>
                                                   </div>
                                              )}
-                                             <Button
-                                                  flat
-                                                  onClick={() =>
-                                                       toggleThread(thread.id)
-                                                  }
-                                                  className="mt-3"
-                                                  css={{
-                                                       width: "100%",
-                                                       justifyContent: "center",
-                                                       padding: "10px",
-                                                       color:
-                                                            expandedThreadId ===
-                                                            thread.id
-                                                                 ? "red"
-                                                                 : "blue",
-                                                  }}
-                                             >
-                                                  {expandedThreadId ===
-                                                  thread.id
-                                                       ? "Collapse Thread"
-                                                       : "Expand Thread"}
-                                             </Button>
+
+                                             {thread.message_count > 0 ? (
+                                                  <Button
+                                                       flat
+                                                       onClick={() =>
+                                                            toggleThread(
+                                                                 thread.id
+                                                            )
+                                                       }
+                                                       className="mt-3"
+                                                       css={{
+                                                            justifyContent:
+                                                                 "center",
+                                                            padding: "10px",
+                                                            color:
+                                                                 expandedThreadId ===
+                                                                 thread.id
+                                                                      ? "red"
+                                                                      : "blue",
+                                                       }}
+                                                  >
+                                                       {expandedThreadId ===
+                                                       thread.id
+                                                            ? "Collapse Thread"
+                                                            : "Expand Thread"}
+                                                  </Button>
+                                             ) : (
+                                                  <p className="text-sm text-gray-500 flex items-center justify-center my-3">
+                                                       No replies yet.
+                                                  </p>
+                                             )}
                                         </CardBody>
 
                                         <div
