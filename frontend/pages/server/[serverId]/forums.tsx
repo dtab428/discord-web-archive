@@ -229,6 +229,7 @@ export default function ServerForums() {
                                         onClick={() =>
                                              handleChannelClick(channel.id)
                                         }
+                                        className="my-1"
                                         css={{
                                              marginBottom: "10px",
                                              width: "100%",
